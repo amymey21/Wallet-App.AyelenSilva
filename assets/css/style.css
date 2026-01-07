@@ -1,0 +1,53 @@
+*{
+    font-family: "Geologica", sans-serif;
+} 
+
+body {
+    
+    background-image: linear-gradient(to right, #4730da9a, #43e5e5);
+}
+
+/* Todas las html */
+header {
+    color: #0d7073;
+    text-align: center;
+}
+
+button.btn {
+    background-color: #20b8e1cb;
+}
+
+a.btn{
+    background-color: #20b8e1cb;
+}
+
+a.functionalButton {
+    background-color: #2a2b31d3;
+}
+
+/* login */
+#linkRegistro {color: #094d43;}
+
+/* sendmoney */
+#searchButton {
+    background-color: azure;
+    border: 1px #70c6c6;
+    
+}
+
+.card-body {
+    background-color: #aadcf5;
+    color: #371684;
+}
+
+/* Modal en sendmoney: Formulario emergente */
+
+div.modal-footer button.cancelar {
+    background-color: #868893d3;
+}
+
+#nuevoContactoLabel {
+    color: #0d7073;
+}
+
+

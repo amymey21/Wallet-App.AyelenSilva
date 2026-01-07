@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wallet - Enviar Dinero</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geologica:wght,CRSV@100..900,0&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap CSS-->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <!-- CSS -->
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
+
+  <body class="p-3 m-3">
+    <header>
+      <h2>Enviar dinero</h2>
+    </header>
+
+    <main>
+      <form id="sendForm" novalidate>
+        <div class="row m-2">
+          <div class="mb-3">
+            <label for="searchContact" class="form-label"
+              >Buscar contacto:</label
+            >
+            <input
+              type="text"
+              id="searchContact"
+              class="form-control"
+              placeholder="Buscar por alias o nombre"
+            />
+          </div>
+
+          <div class="col mb-3">
+            <label for="contactsSelect" class="form-label"
+              >Selecciona contacto:</label
+            >
+            <select
+              id="contactsSelect"
+              class="form-select"
+              required
+              aria-required="true"
+            >
+              <option value="" disabled selected>-Selecciona-</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="sendAmount" class="form-label">Monto a enviar:</label>
+            <input
+              type="number"
+              id="sendAmount"
+              class="form-control"
+              min="1"
+              step="1"
+              required
+              aria-required="true"
+              inputmode="numeric"
+            />
+          </div>
+        </div>
+
+        <!-- Boton que abre modal-->
+        <div class="row m-2">
+          <div class="col p-2">
+            <button
+              class="btn w-100"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#nuevoContactoModal"
+            >
+              Agregar nuevo contacto
+            </button>
+          </div>
+        </div>
+
+        <!-- Contenedor de alertas de Bootstrap -->
+        <div id="alertContainer" class="m-2"></div>
+
+        <div class="row p-2">
+          <div class="col m-2 d-grid gap-1 col-6 mx-auto">
+            <button type="submit" class="btn">Enviar dinero</button>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <footer>
+      <div class="container m-2 d-grid gap-1 col-6 mx-auto">
+        <a href="menu.html" class="btn btn-dark functionalButton"
+          >Volver al menú</a
+        >
+      </div>
+    </footer>
+
+    <!-- Modal de bootstrap -->
+    <div
+      class="modal fade"
+      id="nuevoContactoModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="nuevoContactoLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <!-- Encabezado del modal -->
+          <div class="modal-header">
+            <h3 class="modal-title" id="nuevoContactoLabel">Nuevo Contacto</h3>
+          </div>
+          <!-- Cuerpo del modal -->
+          <div class="modal-body">
+            <form id="contactForm" novalidate>
+              <div class="mb-3">
+                <label for="nombreContacto" class="form-label"
+                  >Nombres y apellidos</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nombreContacto"
+                  placeholder="Ingrese nombres y apellidos"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="cbuContacto" class="form-label"
+                  >Número de CBU</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="cbuContacto"
+                  placeholder="Ingrese el número de CBU"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="aliasContacto" class="form-label">Alias</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="aliasContacto"
+                  placeholder="Ingrese el alias"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="bancoContacto" class="form-label"
+                  >Nombre del Banco</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="bancoContacto"
+                  placeholder="Ingrese el nombre del banco"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <!-- Botón de envío del formulario modal -->
+              <div class="d-grid gap-1 col-6">
+                <button type="submit" form="contactForm" class="btn">
+                  Guardar contacto
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Pie del modal -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-dark cancelar"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
+    <!-- Bootstrap -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+    <!-- JS -->
+    <script src="./assets/js/sendmoney.js"></script>
+  </body>
+</html>
