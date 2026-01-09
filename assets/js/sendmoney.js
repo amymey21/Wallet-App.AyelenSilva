@@ -2,28 +2,138 @@
 const CLP = new Intl.NumberFormat("es-CL");
 
 $(document).ready(function () {
-  // 1. Obtener usuario logueado
+  // Funciones auxiliares (centralizadas)
+
+  function showAlert(containerSelector, message, type = "info") {
+    const container = $(containerSelector);
+    container.html(`
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `);
+    // Desaparecer después de 3 segundos
+    setTimeout(() => {
+      container.find(".alert").fadeOut("slow", function () {
+        $(this).remove(); // elimina del DOM
+      });
+    }, 3000);
+  }
+
+  function showModalAlertContainer(message, type = "danger") {
+    const container = $("#modalAlertContainer");
+    container.html(`
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `);
+    // Desaparecer después de 3 segundos
+    setTimeout(() => {
+      container.find(".alert").fadeOut("slow", function () {
+        $(this).remove(); // elimina del DOM
+      });
+    }, 3000);
+  }
+
+  // Lógica principal
+  // Obtener usuario logueado - Inicializar contactos
   const usuario =
     localStorage.getItem("usuarioLogueado") ||
     sessionStorage.getItem("usuarioLogueado");
 
   if (!usuario) {
-    $("#alertContainer").append(`
-      <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      No hay usuario logueado. Inicie sesión primero.
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    `);
+    showAlert(
+      "#alertContainer",
+      "No hay usuario logueado. Inicie sesión primero.",
+      "warning"
+    );
     setTimeout(() => {
       window.location.href = "login.html";
     }, 1500);
     return;
   }
 
-  // 2. Cargar contactos al entrar
+  // Lista de contactos por defecto
+  const defaultContacts = [
+    {
+      nombre: "María González",
+      cbu: "1234567890123456789012",
+      alias: "Mariíta",
+      banco: "Banco A",
+    },
+    {
+      nombre: "Juan Pérez",
+      cbu: "2345678901234567890123",
+      alias: "Juano",
+      banco: "Banco B",
+    },
+    {
+      nombre: "Ana López",
+      cbu: "3456789012345678901234",
+      alias: "Anita",
+      banco: "Banco C",
+    },
+    {
+      nombre: "Carlos Sánchez",
+      cbu: "4567890123456789012345",
+      alias: "Carlanga",
+      banco: "Banco D",
+    },
+    {
+      nombre: "Luisa Fernández",
+      cbu: "5678901234567890123456",
+      alias: "Lucha",
+      banco: "Banco E",
+    },
+    {
+      nombre: "Miguel Ramírez",
+      cbu: "6789012345678901234567",
+      alias: "Migue",
+      banco: "Banco F",
+    },
+    {
+      nombre: "Sofía Torres",
+      cbu: "7890123456789012345678",
+      alias: "Sofi",
+      banco: "Banco G",
+    },
+    {
+      nombre: "Diego Morales",
+      cbu: "8901234567890123456789",
+      alias: "Diego",
+      banco: "Banco H",
+    },
+  ];
+
+  // Determinar storage correcto
+  const isLocal = localStorage.getItem("usuarioLogueado") === usuario;
+  const storage = isLocal ? localStorage : sessionStorage;
+
+  // Leer contactos existentes
+  let Contacts = [];
+  try {
+    Contacts = JSON.parse(storage.getItem("contacts_" + usuario) || "[]");
+  } catch {
+    Contacts = [];
+  }
+
+  // Inicializar sólo si no hay contactos guardados
+  if (Contacts.length === 0) {
+    storage.setItem("contacts_" + usuario, JSON.stringify(defaultContacts));
+  }
+
+  // Renderizar contactos iniciales
   renderContacts(usuario);
 
-  // Handler de contactos
+  // HANDLERS
+  // A. Búsqueda en agenda
+  $("#searchContact").on("input", function () {
+    const term = $(this).val().trim();
+    renderContacts(usuario, term);
+  });
+
+  // B. Agregar contactos
   $("#contactForm").on("submit", function (event) {
     event.preventDefault();
 
@@ -35,58 +145,33 @@ $(document).ready(function () {
 
     // Validar que los campos no estén vacíos
     if (!nombre || !cbu || !alias || !banco) {
-      $("#alertContainer").append(`
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          Completa todos los campos.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      `);
+      showModalAlertContainer("Completa todos los campos.", "danger");
       return;
     }
 
     // Validar que el CBU tenga 22 dígitos
     const cbuRegex = /^\d{22}$/;
     if (!cbuRegex.test(cbu)) {
-      $("#alertContainer").append(`
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          El CBU debe tener 22 dígitos.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      `);
+      showModalAlertContainer("El CBU debe tener 22 dígitos.", "danger");
       return;
     }
 
     // Leer contactos existentes
-    const raw =
-      localStorage.getItem("contacts_" + usuario) ||
-      sessionStorage.getItem("contacts_" + usuario) ||
-      "[]";
-
     let contacts = [];
     try {
-      contacts = JSON.parse(raw);
+      contacts = JSON.parse(storage.getItem("contacts_" + usuario) || "[]");
     } catch {
       contacts = [];
     }
 
     // Agregar nuevo contacto
     contacts.push({ nombre, cbu, alias, banco });
+    storage.setItem("contacts_" + usuario, JSON.stringify(contacts));
 
-    // Guardar en el mismo storage donde está el usuario
-    if (localStorage.getItem("usuarioLogueado") === usuario) {
-      localStorage.setItem("contacts_" + usuario, JSON.stringify(contacts));
-    } else {
-      sessionStorage.setItem("contacts_" + usuario, JSON.stringify(contacts));
-    }
+    // Mostrar alerta de éxito
+    showAlert("#alertContainer", "Contacto guardado correctamente.", "success");
 
-    // feedback y reset
-    $("#alertContainer").append(`
-      <div class=alert alert-success alert-dismissible fade show" role="alert">
-        Contacto guardado correctamente.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    `);
-
+    // Resetear formulario
     $("#contactForm")[0].reset();
 
     // Cerrar el modal
@@ -98,7 +183,7 @@ $(document).ready(function () {
     renderContacts(usuario);
   });
 
-  // 4. Handler enviar dinero
+  // C. Enviar dinero
   $("#sendForm").submit(function (event) {
     event.preventDefault();
     // Capturar valores
@@ -118,7 +203,7 @@ $(document).ready(function () {
       return;
     }
 
-    if (isNaN(amount) || amount <= 1) {
+    if (isNaN(amount) || amount < 1) {
       $("#alertContainer").append(`
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           Ingresa un monto válido mayor o igual a 1.
@@ -128,9 +213,7 @@ $(document).ready(function () {
       return;
     }
 
-    const isLocal = localStorage.getItem("usuarioLogueado") === usuario;
-    const storage = isLocal ? localStorage : sessionStorage;
-
+    // Verificar saldo suficiente
     let saldo = parseInt(storage.getItem("saldo_" + usuario) || "0", 10);
     if (isNaN(saldo)) saldo = 0;
 
@@ -147,7 +230,7 @@ $(document).ready(function () {
     saldo -= amount;
     storage.setItem("saldo_" + usuario, String(saldo));
 
-    // 1.Crear nueva transacción
+    //Crear nueva transacción
     const nuevaTX = {
       fecha: new Date().toISOString(),
       contacto: select.find("option:selected").text(),
@@ -155,7 +238,7 @@ $(document).ready(function () {
       saldoFinal: saldo,
     };
 
-    // 2. Leer historial existente
+    //Leer historial existente
     const rawTX = storage.getItem("transactions_" + usuario) || "[]";
     let transactions = [];
     try {
@@ -164,7 +247,7 @@ $(document).ready(function () {
       transactions = [];
     }
 
-    // 3. Guardar actualizado
+    // Guardar actualizado
     transactions.push(nuevaTX);
     storage.setItem("transactions_" + usuario, JSON.stringify(transactions));
 
@@ -179,30 +262,59 @@ $(document).ready(function () {
       window.location.href = "menu.html";
     }, 2000);
   });
-});
 
-// Función auxiliar para renderizar contactos
-function renderContacts(usuario) {
-  const select = $("#contactsSelect");
-  if (!select.length) return;
+  // Función auxiliar para renderizar contactos
+  function renderContacts(usuario, filter = "") {
+    const select = $("#contactsSelect");
+    const datalist = $("#contactSuggestions");
+    if (!select.length) return;
 
-  select.empty().append(`<option value="">-Selecciona-</option>`);
+    // Reiniciar contenido
+    select.empty().append(`<option value="">--Selecciona--</option>`);
+    if (datalist.length) datalist.empty();
 
-  const raw =
-    localStorage.getItem("contacts_" + usuario) ||
-    sessionStorage.getItem("contacts_" + usuario) ||
-    "[]";
+    let contacts = [];
+    try {
+      contacts = JSON.parse(storage.getItem("contacts_" + usuario) || "[]");
+    } catch {
+      contacts = [];
+    }
 
-  let contacts = [];
-  try {
-    contacts = JSON.parse(raw);
-  } catch {
-    contacts = [];
+    // Normalizar texto (eliminar acentos)
+    const normalizeText = (text) =>
+      text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, ""); // Eliminar acentos
+
+    // Filtrar contactos si hay término de búsqueda
+    if (filter) {
+      const term = normalizeText(filter);
+      contacts = contacts.filter(
+        (c) =>
+          normalizeText(c.alias).includes(term) ||
+          normalizeText(c.nombre).includes(term)
+      );
+    }
+
+    // Si no hay contactos
+    if (contacts.length === 0) {
+      select.append(`<option value="">No se encontraron contactos</option>`);
+      return;
+    }
+
+    // Renderrizar contactos en select y datalist
+    contacts.forEach((c, idx) => {
+      const label = `${c.alias} - ${c.nombre} (${c.banco})`;
+      select.append(`<option value="${idx}">${label}</option>`);
+      if (datalist.length) {
+        datalist.append(`<option value="${c.alias}">${label}</option>`);
+      }
+    });
+
+    // Auto seleccionar el primer contacto
+    if (filter && contacts.length > 0) {
+      select.val("0"); //Selecciona el 1ro
+    }
   }
-
-  contacts.forEach((c, idx) => {
-    select.append(
-      `<option value="${idx}">${c.alias} - ${c.nombre} (${c.banco})</option>`
-    );
-  });
-}
+});

@@ -39,7 +39,9 @@
               id="searchContact"
               class="form-control"
               placeholder="Buscar por alias o nombre"
+              list="contactSuggestions"
             />
+            <datalist id="contactSuggestions"></datalist>
           </div>
 
           <div class="col mb-3">
@@ -52,7 +54,7 @@
               required
               aria-required="true"
             >
-              <option value="" disabled selected>-Selecciona-</option>
+              <option value="">-Selecciona-</option>
             </select>
           </div>
 
@@ -122,6 +124,8 @@
           </div>
           <!-- Cuerpo del modal -->
           <div class="modal-body">
+            <!-- Contenedor de Alertas -->
+            <div id="modalAlertContainer" class="mb-2"></div>
             <form id="contactForm" novalidate>
               <div class="mb-3">
                 <label for="nombreContacto" class="form-label"
