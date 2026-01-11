@@ -34,12 +34,32 @@ $(document).ready(function () {
 
     const nuevoSaldo = saldoActual + monto;
 
-    if (localStorage.getItem("usuarioLogueado")) {
-      localStorage.setItem("saldo_" + usuario, nuevoSaldo);
-    } else {
-      sessionStorage.setItem("saldo_" + usuario, nuevoSaldo);
-    }
+    // Guardar nuevo saldo
+    const storage = localStorage.getItem("usuarioLogueado")
+      ? localStorage
+      : sessionStorage;
+    storage.setItem("saldo_" + usuario, nuevoSaldo);
 
+    // Guardar transacción de depósito
+    const nuevaTX = {
+      fecha: new Date().toISOString(),
+      monto: monto,
+      saldoFinal: nuevoSaldo,
+      tipo: "deposito",
+    };
+
+    let transactions = [];
+    try {
+      transactions = JSON.parse(
+        storage.getItem("transactions_" + usuario) || "[]"
+      );
+    } catch {
+      transactions = [];
+    }
+    transactions.push(nuevaTX);
+    storage.setItem("transactions_" + usuario, JSON.stringify(transactions));
+
+    // Alerta de éxito
     $("#alertContainer").append(`
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         Depósito realizado exitosamente. Nuevo saldo: $${CLP.format(nuevoSaldo)}

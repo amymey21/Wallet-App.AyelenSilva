@@ -2,8 +2,10 @@
 const CLP = new Intl.NumberFormat("es-CL");
 
 $(document).ready(function () {
-  // Funciones auxiliares (centralizadas)
+  // Ocultar el botón "Enviar dinero" al entrar a la página
+  $("#sendForm button[type='submit']").hide();
 
+  // Funciones auxiliares (centralizadas)
   function showAlert(containerSelector, message, type = "info") {
     const container = $(containerSelector);
     container.html(`
@@ -20,7 +22,7 @@ $(document).ready(function () {
     }, 3000);
   }
 
-  function showModalAlertContainer(message, type = "danger") {
+  function showModalAlert(message, type = "danger") {
     const container = $("#modalAlertContainer");
     container.html(`
       <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -145,14 +147,14 @@ $(document).ready(function () {
 
     // Validar que los campos no estén vacíos
     if (!nombre || !cbu || !alias || !banco) {
-      showModalAlertContainer("Completa todos los campos.", "danger");
+      showModalAlert("Completa todos los campos.", "danger");
       return;
     }
 
     // Validar que el CBU tenga 22 dígitos
     const cbuRegex = /^\d{22}$/;
     if (!cbuRegex.test(cbu)) {
-      showModalAlertContainer("El CBU debe tener 22 dígitos.", "danger");
+      showModalAlert("El CBU debe tener 22 dígitos.", "danger");
       return;
     }
 
@@ -184,6 +186,15 @@ $(document).ready(function () {
   });
 
   // C. Enviar dinero
+  $("#contactsSelect").on("change", function () {
+    const btn = $("#sendForm button[type='submit']");
+    if ($(this).val()) {
+      btn.show().addClass("btn-animate"); // aparece con animación
+    } else {
+      btn.hide().removeClass("btn-animate"); // se oculta y limpia animación
+    }
+  });
+
   $("#sendForm").submit(function (event) {
     event.preventDefault();
     // Capturar valores
@@ -194,22 +205,16 @@ $(document).ready(function () {
     const amount = parseInt(amountInput.val(), 10);
 
     if (!contactIndex) {
-      $("#alertContainer").append(`
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          Selecciona un contacto.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      `);
+      showAlert("#alertContainer", "Selecciona un contacto.", "danger");
       return;
     }
 
     if (isNaN(amount) || amount < 1) {
-      $("#alertContainer").append(`
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          Ingresa un monto válido mayor o igual a 1.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      `);
+      showAlert(
+        "#alertContainer",
+        "Ingresa un monto válido mayor o igual a 1.",
+        "danger"
+      );
       return;
     }
 
@@ -218,12 +223,7 @@ $(document).ready(function () {
     if (isNaN(saldo)) saldo = 0;
 
     if (saldo < amount) {
-      $("#alertContainer").append(`
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          Saldo insuficiente.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      `);
+      showAlert("#alertContainer", "Saldo insuficiente.", "danger");
       return;
     }
 
@@ -236,6 +236,7 @@ $(document).ready(function () {
       contacto: select.find("option:selected").text(),
       monto: amount,
       saldoFinal: saldo,
+      tipo: "transferencia",
     };
 
     //Leer historial existente
@@ -251,13 +252,12 @@ $(document).ready(function () {
     transactions.push(nuevaTX);
     storage.setItem("transactions_" + usuario, JSON.stringify(transactions));
 
-    $("#alertContainer").append(`
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Transferencia exitosa. Nuevo saldo: $${CLP.format(saldo)}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    `);
-
+    showAlert(
+      "#alertContainer",
+      `Transferencia exitosa. Nuevo saldo: $${CLP.format(saldo)}`,
+      "success"
+    );
+    // Redirigir a menú después de 2 segundos
     setTimeout(() => {
       window.location.href = "menu.html";
     }, 2000);
@@ -315,6 +315,7 @@ $(document).ready(function () {
     // Auto seleccionar el primer contacto
     if (filter && contacts.length > 0) {
       select.val("0"); //Selecciona el 1ro
+      select.trigger("change"); // Dispara el cambio para mostrar botón
     }
   }
 });

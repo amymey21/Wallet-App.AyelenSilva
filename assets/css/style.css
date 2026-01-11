@@ -43,6 +43,25 @@ a.functionalButton {
     color: #371684;
 }
 
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.btn-animate {
+    animation: bounceIn 0.6s ease;
+}
+
+
 /* Modal en sendmoney: Formulario emergente */
 
 div.modal-footer button.cancelar {

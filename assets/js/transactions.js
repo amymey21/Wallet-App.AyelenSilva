@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+$(document).ready(function () {
   // Formateador CLP (para mostrar montos y saldo con puntos)
   const CLP = new Intl.NumberFormat("es-CL");
 
