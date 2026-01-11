@@ -3,6 +3,9 @@ const CLP = new Intl.NumberFormat("es-CL");
 
 // menu.js
 $(document).ready(function () {
+  // Animación de la tarjeta saldo
+  $(".card-resumen").hide().fadeIn(1500);
+
   // Cargar saldo actual desde Storage
   function cargarSaldo() {
     const usuario =
