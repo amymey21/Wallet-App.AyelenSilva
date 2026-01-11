@@ -32,6 +32,15 @@
     </header>
 
     <main>
+      <form id="filterForm" class="mb-3">
+        <label for="filterType" class="form-label">Filtrar por tipo:</label>
+        <select id="filterType" class="form-select">
+          <option value="">Todos</option>
+          <option value="deposito">Depósito</option>
+          <option value="transferencia">Transferencia realizada</option>
+        </select>
+      </form>
+
       <div class="container-sm">
         <div class="row mt-3">
           <ul id="listaMovimientos" class="col list-group"></ul>

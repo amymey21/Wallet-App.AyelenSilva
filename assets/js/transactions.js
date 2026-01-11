@@ -14,65 +14,81 @@ $(document).ready(function () {
   }
 
   // 2. Detectar storage correcto
-  const isLocal = localStorage.getItem("usuarioLogueado") === usuario;
-  const storage = isLocal ? localStorage : sessionStorage;
+  const storage = localStorage.getItem("usuarioLogueado")
+    ? localStorage
+    : sessionStorage;
 
   // 3. Leer transacciones
-  const rawTX = storage.getItem("transactions_" + usuario) || "[]";
   let transactions = [];
   try {
-    transactions = JSON.parse(rawTX);
+    transactions = JSON.parse(
+      storage.getItem("transactions_" + usuario) || "[]"
+    );
   } catch {
     transactions = [];
   }
 
-  // 4. Tomar 10 transacciones
-  const ultimas = transactions.slice(-10).reverse();
-
-  // 5. Pintar en la lista
-  const list = document.getElementById("listaMovimientos");
-  list.innerHTML = "";
-
-  if (ultimas.length === 0) {
-    list.innerHTML =
-      "<li class='list-group-item'>No hay movimientos registrados.</li>";
-    return;
+  // Filtrar transacciones según tipo
+  function getTipoTransaccion(tipo) {
+    switch (tipo) {
+      case "deposito":
+        return "Depósito";
+      case "transferencia":
+        return "Transferencia realizada";
+      default:
+        return "Otro";
+    }
   }
 
-  ultimas.forEach((tx) => {
-    const li = document.createElement("li");
+  // Mostrar movimientos
+  function mostrarUltimosMovimientos(filtro = "") {
+    const list = $("#listaMovimientos");
+    list.empty();
 
-    // Diferenciar estilos según tipo
-    if (tx.tipo === "deposito") {
-      li.className = "list-group-item bg-success-subtle border border-success";
-    } else {
-      li.className = "list-group-item bg-info-subtle border border-info";
+    let filtradas = transactions.slice(-10).reverse();
+    if (filtro) {
+      filtradas = filtradas.filter((tx) => tx.tipo === filtro);
     }
 
-    // Fecha ISO a legible
-    let fecha = "Sin fecha";
-    if (tx.fecha) {
-      const d = new Date(tx.fecha);
-      if (!isNaN(d)) {
-        const fechaParte = d.toLocaleDateString("es-CL", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
+    if (filtradas.length === 0) {
+      list.append(
+        "<li class='list-group-item'>No hay movimientos registrados.</li>"
+      );
+      return;
+    }
 
-        const horaParte = d.toLocaleTimeString("es-CL", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-        fecha = `${fechaParte} ${horaParte}`;
+    filtradas.forEach((tx) => {
+      let fecha = "Sin fecha";
+      if (tx.fecha) {
+        const d = new Date(tx.fecha);
+        if (!isNaN(d)) {
+          fecha = d.toLocaleString("es-CL");
+        }
       }
-    }
+      const montoFmt = CLP.format(tx.monto ?? 0);
+      const saldoFmt = CLP.format(tx.saldoFinal ?? 0);
 
-    // Montos formateados
-    const montoFmt = CLP.format(tx.monto ?? 0);
-    const saldoFmt = CLP.format(tx.saldoFinal ?? 0);
+      list.append(`
+        <li class="list-group-item ${
+          tx.tipo === "deposito"
+            ? "bg-success-subtle border border-success"
+            : "bg-info-subtle border border-info"
+        }">
+          <strong>${getTipoTransaccion(tx.tipo)}</strong><br>
+          ${tx.contacto ? "Contacto: " + tx.contacto + "<br>" : ""}
+          Monto: $${montoFmt}<br>
+          Fecha: ${fecha}<br>
+          Saldo final: $${saldoFmt}
+        </li>
+      `);
+    });
+  }
 
-    li.textContent = `${fecha} - ${tx.contacto} - $${tx.monto} - Saldo: $${tx.saldoFinal}`;
-    list.appendChild(li);
+  // Inicial: Mostrar todos
+  mostrarUltimosMovimientos();
+
+  // Handler del filtro
+  $("#filterType").change(function () {
+    mostrarUltimosMovimientos($(this).val());
   });
 });

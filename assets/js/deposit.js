@@ -63,9 +63,13 @@ $(document).ready(function () {
     $("#alertContainer").append(`
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         Depósito realizado exitosamente. Nuevo saldo: $${CLP.format(nuevoSaldo)}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     `);
+
+    setTimeout(() => {
+      window.location.href = "menu.html";
+    }, 2000);
 
     $("#depositAmount").val("");
   });
