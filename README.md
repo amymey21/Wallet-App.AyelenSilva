@@ -4,7 +4,7 @@ Proyecto de prototipo de billetera digital
 
 ## Funcionalidades
 - Login de usuario con validación.
-- Menú principal con saldo y navegación.
+- Menú principal con saldo y botones de navegación.
 - Depósitos y retiros que actualizan el saldo.
 - Envío de dinero con autocompletar de contactos.
 - Historial de transacciones dinámico.
