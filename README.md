@@ -22,7 +22,7 @@ Para acceder al prototipo, utiliza las siguientes credenciales de prueba:
 
 ## Demo funcional
 La aplicación puede abrirse en cualquier navegador web.  
-Si habilitaste GitHub Pages, accede aquí:  
+En GitHub Pages, accede aquí:  
 [Alke Wallet Demo](https://amymey21.github.io/Wallet-App.AyelenSilva/)  
 
 
